@@ -516,7 +516,7 @@
             🎬 ANALYSE DE L'URL :
             • mdn.github.io = Hébergement GitHub Pages de Mozilla
             • learning-area = Dépôt éducationnel officiel MDN
-            • rabbit320.webm = Vidéo de test classique, 320px de large
+            • https://cdn.midjourney.com/video/86c54820-90a6-4b77-8d3c-213fde9940bf/0.mp4
             
             📊 CARACTÉRISTIQUES TECHNIQUES :
             • Format : WebM container avec VP8 video codec
@@ -524,9 +524,10 @@
             • Taille fichier : ~200KB (excellent pour performance)
             • Durée : ~3-4 secondes en boucle
             • Compression : Optimisée pour web, excellent ratio qualité/taille
+            . src="https://cdn.midjourney.com/video/7078154d-7cc5-44d3-b1f8-389ed29198d4/0.mp4" 
             -->
             <source 
-                src="https://cdn.midjourney.com/video/321cc841-5b11-411a-b9d5-7c6912ddbf8d/0.mp4" 
+                src="https://cdn.midjourney.com/video/86c54820-90a6-4b77-8d3c-213fde9940bf/0.mp4" 
                 type="video/webm">
             
             <!-- 
@@ -534,7 +535,7 @@
             Dans un projet réel, vous ajouteriez ici une source MP4 de fallback
             pour une compatibilité maximale, comme ceci :
             
-            <source src="votre-video-rabbit.mp4" type="video/mp4">
+            <source src="https://cdn.midjourney.com/video/86c54820-90a6-4b77-8d3c-213fde9940bf/0.mp4" type="video/mp4">
             
             Mozilla ne fournit que la version WebM pour cette démo, mais
             WebM est supporté par 95%+ des navigateurs modernes.
@@ -555,12 +556,12 @@
 
         <!-- 
         CONTENU PRINCIPAL DU HERO
-        Adapté pour refléter notre nouvelle démonstration avec la vidéo rabbit
+        Adapté pour refléter notre nouvelle démonstration avec la vidéo
         -->
         <div class="hero-content">
             <h1 class="hero-title">Vidéo Hero Fonctionnelle</h1>
             <p class="hero-subtitle">
-                Démonstration réelle avec la vidéo rabbit de MDN Mozilla. 
+                Démonstration réelle avec video Midjourney. 
                 Observez le chargement, l'autoplay et les fallbacks intelligents en action.
             </p>
             <a href="#guide" class="hero-cta">Analyser l'implémentation</a>
@@ -580,7 +581,7 @@
         </p>
 
         <div class="tip">
-            <strong>🎬 Vidéo rabbit MDN maintenant intégrée !</strong>
+            <strong>🎬 Vidéo maintenant intégrée !</strong>
             <br>Cette vidéo de référence illustre parfaitement tous les concepts que nous avons explorés. 
             Observez dans la console les événements de chargement réels et la transition fluide du placeholder vers la vidéo.
             <br><br>
@@ -965,12 +966,12 @@
             /**
              * ANALYSE DU CHARGEMENT VIDÉO RÉEL
              * 
-             * Avec la vidéo rabbit MDN, nous pouvons maintenant observer tous les événements
+             * Avec la vidéo suivante, nous pouvons maintenant observer tous les événements
              * de chargement HTML5 dans leur séquence naturelle. Cette observation vous permet
              * de comprendre concrètement comment les navigateurs gèrent les ressources vidéo.
              */
             simulateVideoLoading() {
-                console.log('🐰 Vidéo rabbit MDN - observation des événements natifs');
+                console.log('Vidéo - observation des événements natifs');
                 console.log('📊 URL source:', this.video ? this.video.currentSrc || 'Non définie' : 'Élément vidéo introuvable');
                 
                 // Établissement d'un timeout de sécurité pour diagnostic
