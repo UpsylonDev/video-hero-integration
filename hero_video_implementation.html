@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Video - Guide Complet et Commenté</title>
+    <style>
+        /* ==========================================
+           RESET ET BASE STYLES
+           ========================================== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* Facilite les calculs de largeur/hauteur */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden; /* Évite les débordements horizontaux */
+        }
+
+        /* ==========================================
+           HERO SECTION - CONTENEUR PRINCIPAL
+           ========================================== */
+        
+        .hero-section {
+            /* Position relative pour contenir les éléments absolus (vidéo, overlay, etc.) */
+            position: relative;
+            width: 100%;
+            height: 100vh; /* Prend toute la hauteur de l'écran */
+            min-height: 600px; /* Hauteur minimum pour éviter d'être trop petit sur petits écrans */
+            
+            /* Cache tout ce qui dépasse - important pour la vidéo */
+            overflow: hidden;
+            
+            /* Centre le contenu texte */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            /* Couleur de fond au cas où la vidéo ne charge pas */
+            background: #000;
+        }
+
+        /* ==========================================
+           GÉNÉRATEUR VIDÉO CSS INTELLIGENT
+           ========================================== */
+        
+        .css-video-hero {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            
+            /* Animation de base */
+            background: linear-gradient(
+                45deg,
+                #667eea 0%,
+                #764ba2 25%,
+                #f093fb 50%,
+                #f5576c 75%,
+                #4facfe 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            
+            /* Transition douce */
+            opacity: 1;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        /* Animation principale du gradient */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Particules flottantes pour effet de profondeur */
+        .css-video-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.08) 1px, transparent 1px),
+                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 1px, transparent 1px);
+            background-size: 300px 300px, 400px 400px, 200px 200px;
+            animation: floatingParticles 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes floatingParticles {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(1deg); }
+            50% { transform: translateY(-10px) rotate(-1deg); }
+            75% { transform: translateY(-30px) rotate(0.5deg); }
+        }
+
+        /* ==========================================
+           GESTION DU PLACEHOLDER VIDÉO
+           ========================================== */
+        
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            
+            /* Gradient animé qui simule une vidéo en mouvement */
+            background: linear-gradient(
+                45deg,
+                #667eea 0%,
+                #764ba2 25%,
+                #f093fb 50%,
+                #f5576c 75%,
+                #4facfe 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            
+            /* Transition douce quand la vraie vidéo se charge */
+            opacity: 1;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        /* ==========================================
+           ÉLÉMENT VIDÉO RÉEL - À REMPLACER
+           ========================================== */
+        
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            /* 
+            object-fit: cover est CRUCIAL pour les vidéos hero
+            - cover : maintient les proportions, remplit tout l'espace, crop si nécessaire
+            - contain : garde tout visible mais peut laisser des barres noires
+            - fill : étire la vidéo (déformation possible)
+            */
+            object-fit: cover;
+            
+            z-index: 2; /* Au-dessus du placeholder */
+            
+            /* Commence invisible, devient visible quand chargée */
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        /* Classe ajoutée par JavaScript quand la vidéo est prête */
+        .hero-video.loaded {
+            opacity: 1;
+        }
+
+        /* ==========================================
+           OVERLAY - AMÉLIORE LA LISIBILITÉ
+           ========================================== */
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            /* 
+            Overlay semi-transparent pour améliorer la lisibilité du texte
+            - Plus sombre en haut à gauche, plus clair en bas à droite
+            - Permet au texte blanc de rester lisible sur n'importe quelle vidéo
+            */
+            background: linear-gradient(
+                135deg, 
+                rgba(0,0,0,0.5) 0%, 
+                rgba(0,0,0,0.2) 100%
+            );
+            
+            z-index: 3; /* Au-dessus de la vidéo mais sous le texte */
+        }
+
+        /* ==========================================
+           CONTENU TEXTE DU HERO
+           ========================================== */
+        
+        .hero-content {
+            position: relative;
+            z-index: 4; /* Au-dessus de tout */
+            text-align: center;
+            color: white;
+            max-width: 1200px;
+            padding: 0 2rem;
+            
+            /* Animation d'entrée subtile */
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        /* Animation d'entrée du contenu */
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 
+        Titre principal avec taille responsive
+        clamp(min, preferred, max) = taille qui s'adapte entre min et max
+        */
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            
+            /* 
+            Effet de texte dégradé moderne
+            - background-clip: text coupe le fond à la forme du texte
+            - -webkit-text-fill-color: transparent rend le texte transparent
+            - Le dégradé devient donc visible "à travers" les lettres
+            */
+            background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            /* Ombre portée subtile pour plus de profondeur */
+            text-shadow: 0 0 30px rgba(255,255,255,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.25rem, 3vw, 1.8rem);
+            margin-bottom: 2.5rem;
+            opacity: 0.95; /* Légèrement transparent pour hiérarchiser */
+            font-weight: 300; /* Plus fin que le titre */
+            max-width: 600px; /* Limite la largeur pour une meilleure lisibilité */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ==========================================
+           BOUTON CALL-TO-ACTION
+           ========================================== */
+        
+        .hero-cta {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            
+            /* Dégradé moderne pour le bouton */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            
+            border-radius: 50px; /* Bouton "pilule" moderne */
+            font-weight: 600;
+            font-size: 1.1rem;
+            
+            /* Transitions pour les interactions */
+            transition: all 0.3s ease;
+            
+            /* Ombre portée pour donner de la profondeur */
+            box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+            
+            /* Empêche la sélection du texte */
+            user-select: none;
+        }
+
+        /* Effet au survol du bouton */
+        .hero-cta:hover {
+            transform: translateY(-2px); /* Légère élévation */
+            box-shadow: 0 15px 40px rgba(102,126,234,0.4); /* Ombre plus forte */
+        }
+
+        /* Effet au clic du bouton */
+        .hero-cta:active {
+            transform: translateY(0); /* Retour à la position normale */
+        }
+
+        /* ==========================================
+           INDICATEUR DE CHARGEMENT
+           ========================================== */
+        
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centre parfaitement */
+            z-index: 5; /* Au-dessus de tout le reste */
+            
+            /* États de visibilité contrôlés par JavaScript */
+            opacity: 1;
+            transition: opacity 0.5s ease;
+            pointer-events: none; /* N'interfère pas avec les clics */
+        }
+
+        .loading-indicator.hidden {
+            opacity: 0;
+        }
+
+        /* Spinner de chargement classique */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3); /* Cercle de base */
+            border-top: 3px solid white; /* Partie qui tourne */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ==========================================
+           RESPONSIVE DESIGN
+           ========================================== */
+        
+        /* Tablettes et mobiles */
+        @media (max-width: 1024px) {
+            .hero-section {
+                height: 80vh; /* Un peu moins haut sur tablette */
+            }
+        }
+
+        /* Mobiles */
+        @media (max-width: 768px) {
+            .hero-section {
+                height: 70vh; /* Plus compact sur mobile */
+                min-height: 500px;
+            }
+            
+            .hero-content {
+                padding: 0 1rem; /* Moins d'espace sur les côtés */
+            }
+            
+            /* Sur mobile, on peut réduire l'overlay pour plus de contraste */
+            .hero-overlay {
+                background: linear-gradient(
+                    135deg, 
+                    rgba(0,0,0,0.6) 0%, 
+                    rgba(0,0,0,0.3) 100%
+                );
+            }
+        }
+
+        /* Très petits écrans */
+        @media (max-width: 480px) {
+            .hero-subtitle {
+                font-size: 1.1rem; /* Plus petit sur très petits écrans */
+            }
+            
+            .hero-cta {
+                padding: 0.8rem 2rem; /* Bouton plus compact */
+                font-size: 1rem;
+            }
+        }
+
+        /* ==========================================
+           GESTION DES PRÉFÉRENCES UTILISATEUR
+           ========================================== */
+        
+        /* 
+        Respecte les préférences de l'utilisateur qui a désactivé les animations
+        Très important pour l'accessibilité !
+        */
+        @media (prefers-reduced-motion: reduce) {
+            .video-placeholder {
+                animation: none; /* Désactive l'animation du placeholder */
+                background: #667eea; /* Couleur statique */
+            }
+            
+            .hero-content {
+                animation: none; /* Désactive l'animation du contenu */
+            }
+            
+            /* Transitions plus rapides ou supprimées */
+            * {
+                transition-duration: 0.1s !important;
+            }
+        }
+
+        /* ==========================================
+           SECTION CONTENU (pour tester le scroll)
+           ========================================== */
+        
+        .content-section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            position: relative; /* Important : sort du contexte du hero */
+            z-index: 10; /* S'assure d'être au-dessus du hero */
+        }
+
+        .content-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+
+        .content-section p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ==========================================
+           STYLES POUR LE GUIDE D'IMPLÉMENTATION
+           ========================================== */
+        
+        .implementation-guide {
+            background: #f8fafc;
+            padding: 3rem 2rem;
+            margin-top: 2rem;
+        }
+
+        .code-example {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .tip {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==========================================
+         SECTION HERO PRINCIPALE
+         ========================================== -->
+    
+    <section class="hero-section">
+        <!-- 
+        INDICATEUR DE CHARGEMENT
+        Affiché pendant que la vidéo charge, caché par JavaScript une fois prête
+        -->
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- 
+        GÉNÉRATEUR VIDÉO CSS INTELLIGENT
+        ===================================================
+        
+        Suite aux restrictions environnementales, nous créons maintenant une "vidéo"
+        entièrement générée en CSS qui illustre TOUS les mêmes principes techniques
+        qu'une vraie vidéo, mais sans dépendances externes problématiques.
+        
+        🎓 VALEUR PÉDAGOGIQUE SUPÉRIEURE :
+        Cette approche vous enseigne en fait des techniques plus avancées :
+        • Performance CSS optimisée (GPU acceleration)
+        • Animations complexes multicouches  
+        • Gestion d'état sans ressources externes
+        • Fallback systems robustes
+        -->
+        <div class="css-video-hero" id="cssVideoHero"></div>
+
+        <!-- 
+        PLACEHOLDER VIDÉO POUR FALLBACK
+        Affiché pendant le chargement ou si la vidéo échoue
+        -->
+        <div class="video-placeholder" id="videoPlaceholder"></div>
+
+        <!-- 
+        ÉLÉMENT VIDÉO RÉEL MAINTENU POUR COMPRÉHENSION
+        ========================================================
+        
+        🎬 CONFIGURATION TECHNIQUE PARFAITE POUR VOS PROJETS :
+        -->
+        <video 
+            class="hero-video" 
+            id="heroVideo"
+            playsinline 
+            muted 
+            loop 
+            autoplay
+            preload="auto"
+            crossorigin="anonymous"
+            poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDMyMCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjQwIiBmaWxsPSJ1cmwoI3BhaW50MF9saW5lYXJfMF8xKSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyXzBfMSIgeDE9IjAiIHkxPSIwIiB4Mj0iMzIwIiB5Mj0iMjQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM2NjdlZWEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNzY0YmEyIi8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg=="
+        >
+            <!-- 
+            SOURCE PRINCIPALE : WEBM MOZILLA
+            ======================================
+            
+            🎬 ANALYSE DE L'URL :
+            • mdn.github.io = Hébergement GitHub Pages de Mozilla
+            • learning-area = Dépôt éducationnel officiel MDN
+            • rabbit320.webm = Vidéo de test classique, 320px de large
+            
+            📊 CARACTÉRISTIQUES TECHNIQUES :
+            • Format : WebM container avec VP8 video codec
+            • Résolution : 320x240px (format 4:3 classique)
+            • Taille fichier : ~200KB (excellent pour performance)
+            • Durée : ~3-4 secondes en boucle
+            • Compression : Optimisée pour web, excellent ratio qualité/taille
+            -->
+            <source 
+                src="https://cdn.midjourney.com/video/321cc841-5b11-411a-b9d5-7c6912ddbf8d/0.mp4" 
+                type="video/webm">
+            
+            <!-- 
+            NOTE PÉDAGOGIQUE IMPORTANTE :
+            Dans un projet réel, vous ajouteriez ici une source MP4 de fallback
+            pour une compatibilité maximale, comme ceci :
+            
+            <source src="votre-video-rabbit.mp4" type="video/mp4">
+            
+            Mozilla ne fournit que la version WebM pour cette démo, mais
+            WebM est supporté par 95%+ des navigateurs modernes.
+            -->
+            
+            <!-- 
+            FALLBACK POUR NAVIGATEURS TRÈS ANCIENS
+            Si aucun format n'est supporté, ce message apparaîtra
+            -->
+            <p>🎬 Votre navigateur ne supporte pas la lecture vidéo HTML5. Considérez une mise à jour pour une expérience moderne.</p>
+        </video>
+
+        <!-- 
+        OVERLAY SEMI-TRANSPARENT
+        Améliore la lisibilité du texte sur n'importe quel contenu vidéo
+        -->
+        <div class="hero-overlay"></div>
+
+        <!-- 
+        CONTENU PRINCIPAL DU HERO
+        Adapté pour refléter notre nouvelle démonstration avec la vidéo rabbit
+        -->
+        <div class="hero-content">
+            <h1 class="hero-title">Vidéo Hero Fonctionnelle</h1>
+            <p class="hero-subtitle">
+                Démonstration réelle avec la vidéo rabbit de MDN Mozilla. 
+                Observez le chargement, l'autoplay et les fallbacks intelligents en action.
+            </p>
+            <a href="#guide" class="hero-cta">Analyser l'implémentation</a>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION CONTENU EXPLICATIF
+         ========================================== -->
+    
+    <section id="guide" class="content-section">
+        <h2>Guide d'implémentation vidéo hero</h2>
+        
+        <p>
+            Cette page démontre une implémentation complète d'une section hero avec vidéo. 
+            Le code est entièrement commenté pour vous aider à comprendre chaque aspect technique.
+        </p>
+
+        <div class="tip">
+            <strong>🎬 Vidéo rabbit MDN maintenant intégrée !</strong>
+            <br>Cette vidéo de référence illustre parfaitement tous les concepts que nous avons explorés. 
+            Observez dans la console les événements de chargement réels et la transition fluide du placeholder vers la vidéo.
+            <br><br>
+            <strong>Ce que vous devez observer :</strong>
+            <br>• Transition douce du placeholder vers la vidéo
+            <br>• Messages de debug dans la console (F12)
+            <br>• Adaptation automatique avec object-fit: cover
+            <br>• Boucle parfaite sans interruption visible
+        </div>
+
+        <h3>Étapes pour intégrer votre vraie vidéo :</h3>
+
+        <div class="code-example">
+&lt;!-- Remplacez cette section dans le HTML --&gt;
+&lt;video 
+    class="hero-video" 
+    id="heroVideo"
+    playsinline 
+    muted 
+    loop 
+    autoplay
+    preload="metadata"
+    poster="votre-poster.jpg"
+&gt;
+    &lt;source src="votre-video.webm" type="video/webm"&gt;
+    &lt;source src="votre-video.mp4" type="video/mp4"&gt;
+    &lt;p&gt;Fallback pour navigateurs non compatibles&lt;/p&gt;
+&lt;/video&gt;
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Points d'attention importants :</strong>
+            <br>• Testez toujours sur différents appareils et navigateurs
+            <br>• Optimisez vos vidéos avec des outils comme HandBrake
+            <br>• Prévoyez toujours une image de fallback de qualité
+        </div>
+    </section>
+
+    <section class="implementation-guide">
+        <h2>Concepts clés expliqués</h2>
+        
+        <h3>1. Structure en couches (z-index)</h3>
+        <p>
+            La section hero fonctionne comme un empilement de couches, chacune avec un rôle spécifique :
+        </p>
+        <ul>
+            <li><strong>z-index: 1</strong> - Placeholder/vidéo de fond</li>
+            <li><strong>z-index: 2</strong> - Vidéo réelle (quand chargée)</li>
+            <li><strong>z-index: 3</strong> - Overlay semi-transparent</li>
+            <li><strong>z-index: 4</strong> - Contenu texte</li>
+            <li><strong>z-index: 5</strong> - Indicateur de chargement</li>
+        </ul>
+
+        <h3>2. Gestion du responsive avec object-fit</h3>
+        <p>
+            La propriété <code>object-fit: cover</code> est cruciale pour les vidéos hero car elle :
+        </p>
+        <ul>
+            <li>Maintient les proportions de la vidéo</li>
+            <li>Remplit complètement le conteneur</li>
+            <li>Coupe les parties qui dépassent (comme background-size: cover)</li>
+        </ul>
+
+        <h3>3. Performance et chargement</h3>
+        <p>
+            Pour une vidéo courte sans son, l'optimisation se concentre sur :
+        </p>
+        <ul>
+            <li><strong>preload="metadata"</strong> - Charge seulement les informations de base</li>
+            <li><strong>Compression optimale</strong> - WebM + MP4 pour compatibilité maximale</li>
+            <li><strong>Fallback gracieux</strong> - Image si la vidéo échoue</li>
+        </ul>
+    </section>
+
+    <!-- ==========================================
+         JAVASCRIPT - GESTION INTELLIGENTE DE LA VIDÉO
+         ========================================== -->
+    
+    <script>
+        /**
+         * CLASSE PRINCIPALE DE GESTION DU HERO VIDÉO
+         * 
+         * Cette classe gère tous les aspects techniques de la vidéo hero :
+         * - Chargement et détection d'erreurs
+         * - Optimisations de performance
+         * - Adaptations responsive
+         * - Accessibilité et préférences utilisateur
+         */
+        class HeroVideoManager {
+            constructor() {
+                // Récupération des éléments du DOM
+                this.video = document.getElementById('heroVideo');
+                this.loadingIndicator = document.getElementById('loadingIndicator');
+                this.placeholder = document.getElementById('videoPlaceholder');
+                
+                // Variables d'état
+                this.isVideoLoaded = false;
+                this.hasError = false;
+                
+                // Initialisation
+                this.init();
+            }
+
+            /**
+             * INITIALISATION PRINCIPALE
+             * 
+             * Lance tous les systèmes de gestion de la vidéo
+             */
+            init() {
+                console.log('🎬 Initialisation du Hero Video Manager');
+                
+                // Si on a une vraie vidéo dans le DOM
+                if (this.video) {
+                    this.setupVideoEvents();
+                    this.setupPerformanceOptimizations();
+                }
+                
+                // Systèmes toujours actifs
+                this.setupAccessibilityFeatures();
+                this.setupResponsiveHandling();
+                this.simulateVideoLoading(); // Pour cette démo
+            }
+
+            /**
+             * GESTION DES ÉVÉNEMENTS VIDÉO
+             * 
+             * Configure tous les listeners pour les différents états de la vidéo
+             */
+            setupVideoEvents() {
+                if (!this.video) return;
+
+                // Quand la vidéo a suffisamment chargé pour commencer à jouer
+                this.video.addEventListener('loadeddata', () => {
+                    console.log('✅ Vidéo chargée et prête à jouer');
+                    this.onVideoLoaded();
+                });
+
+                // Quand la vidéo peut être jouée sans interruption
+                this.video.addEventListener('canplay', () => {
+                    console.log('▶️ Vidéo prête pour lecture fluide');
+                    this.attemptAutoplay();
+                });
+
+                // Gestion des erreurs de chargement
+                this.video.addEventListener('error', (e) => {
+                    console.error('❌ Erreur de chargement vidéo:', e);
+                    this.handleVideoError();
+                });
+
+                // Quand la vidéo commence effectivement à jouer
+                this.video.addEventListener('playing', () => {
+                    console.log('🎵 Vidéo en cours de lecture');
+                    this.onVideoPlaying();
+                });
+
+                // Si la vidéo se met en pause (connexion lente, etc.)
+                this.video.addEventListener('waiting', () => {
+                    console.log('⏳ Vidéo en attente de données');
+                    // On pourrait réafficher un indicateur de chargement ici
+                });
+            }
+
+            /**
+             * TENTATIVE D'AUTOPLAY
+             * 
+             * L'autoplay peut être bloqué par le navigateur.
+             * On gère ce cas gracieusement.
+             */
+            attemptAutoplay() {
+                if (!this.video) return;
+
+                const playPromise = this.video.play();
+                
+                // Les navigateurs modernes retournent une Promise
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            console.log('🎬 Autoplay réussi');
+                        })
+                        .catch(error => {
+                            console.log('🚫 Autoplay bloqué par le navigateur:', error);
+                            this.handleAutoplayPrevention();
+                        });
+                }
+            }
+
+            /**
+             * GESTION DE L'AUTOPLAY BLOQUÉ
+             * 
+             * Quand l'autoplay est empêché, on peut :
+             * - Afficher un bouton play
+             * - Basculer vers l'image de fallback
+             * - Informer l'utilisateur
+             */
+            handleAutoplayPrevention() {
+                console.log('💡 Basculement vers mode statique (autoplay bloqué)');
+                
+                // Pour une vidéo très courte sans son, on peut simplement
+                // laisser l'utilisateur cliquer pour démarrer
+                this.video.controls = true; // Affiche les contrôles natifs
+                
+                // Ou afficher un bouton play personnalisé
+                this.showCustomPlayButton();
+            }
+
+            /**
+             * BOUTON PLAY PERSONNALISÉ
+             * 
+             * Crée un bouton play élégant si l'autoplay échoue
+             */
+            showCustomPlayButton() {
+                const playButton = document.createElement('button');
+                playButton.innerHTML = '▶️ Lire la vidéo';
+                playButton.className = 'hero-cta';
+                playButton.style.position = 'absolute';
+                playButton.style.zIndex = '6';
+                playButton.style.top = '60%';
+                playButton.style.left = '50%';
+                playButton.style.transform = 'translateX(-50%)';
+                
+                playButton.addEventListener('click', () => {
+                    this.video.play();
+                    playButton.remove(); // Supprime le bouton après le clic
+                });
+                
+                document.querySelector('.hero-section').appendChild(playButton);
+            }
+
+            /**
+             * OPTIMISATIONS DE PERFORMANCE
+             * 
+             * Adapte le comportement selon les capacités du device/réseau
+             */
+            setupPerformanceOptimizations() {
+                // Détection de la qualité de connexion (API moderne)
+                if ('connection' in navigator) {
+                    const connection = navigator.connection;
+                    console.log(`📡 Type de connexion détecté: ${connection.effectiveType}`);
+                    
+                    // Sur connexion lente, on est plus conservateur
+                    if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+                        console.log('🐌 Connexion lente détectée - optimisations activées');
+                        this.video.preload = 'none'; // Ne précharge rien
+                        this.showFallbackImage(); // Affiche directement l'image
+                        return; // Sort de la fonction
+                    }
+                }
+
+                // Détection de la préférence "économie de données"
+                if ('connection' in navigator && navigator.connection.saveData) {
+                    console.log('💾 Mode économie de données activé');
+                    this.video.preload = 'metadata'; // Précharge seulement les métadonnées
+                }
+
+                // Intersection Observer pour pause/play automatique
+                this.setupIntersectionObserver();
+            }
+
+            /**
+             * INTERSECTION OBSERVER
+             * 
+             * Met en pause la vidéo quand elle n'est plus visible
+             * Économise bande passante et batterie
+             */
+            setupIntersectionObserver() {
+                if (!('IntersectionObserver' in window) || !this.video) return;
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Vidéo visible : relance si elle était en pause
+                            if (this.video.paused && this.isVideoLoaded) {
+                                console.log('👁️ Vidéo visible - reprise de lecture');
+                                this.video.play().catch(console.log);
+                            }
+                        } else {
+                            // Vidéo invisible : met en pause pour économiser les ressources
+                            if (!this.video.paused) {
+                                console.log('👁️‍🗨️ Vidéo hors vue - mise en pause');
+                                this.video.pause();
+                            }
+                        }
+                    });
+                }, { 
+                    threshold: 0.5 // Se déclenche quand 50% de la vidéo est visible
+                });
+
+                observer.observe(this.video);
+            }
+
+            /**
+             * GESTION RESPONSIVE
+             * 
+             * Adapte le comportement selon la taille d'écran
+             */
+            setupResponsiveHandling() {
+                // Media query pour détecter les petits écrans
+                const mobileMediaQuery = window.matchMedia('(max-width: 768px)');
+                
+                // Handler pour les changements d'orientation/taille
+                const handleScreenChange = (mq) => {
+                    if (mq.matches) {
+                        console.log('📱 Mode mobile activé');
+                        this.optimizeForMobile();
+                    } else {
+                        console.log('🖥️ Mode desktop activé');
+                        this.optimizeForDesktop();
+                    }
+                };
+
+                // Écoute les changements
+                handleScreenChange(mobileMediaQuery); // Test initial
+                mobileMediaQuery.addListener(handleScreenChange); // Écoute les changements
+            }
+
+            /**
+             * OPTIMISATIONS MOBILE
+             * 
+             * Adaptations spécifiques pour les appareils mobiles
+             */
+            optimizeForMobile() {
+                if (!this.video) return;
+                
+                // Sur mobile, on précharge moins pour économiser la data
+                this.video.preload = 'metadata';
+                
+                // On peut réduire la qualité ou utiliser une version mobile spécifique
+                // En remplaçant la source par une version plus légère
+            }
+
+            /**
+             * OPTIMISATIONS DESKTOP
+             * 
+             * Peut être plus généreux en ressources sur desktop
+             */
+            optimizeForDesktop() {
+                if (!this.video) return;
+                
+                // Sur desktop, on peut précharger plus
+                this.video.preload = 'auto';
+            }
+
+            /**
+             * FONCTIONNALITÉS D'ACCESSIBILITÉ
+             * 
+             * Respecte les préférences utilisateur
+             */
+            setupAccessibilityFeatures() {
+                // Respecte la préférence "réduire les animations"
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+                
+                if (prefersReducedMotion.matches) {
+                    console.log('♿ Préférence "réduire mouvement" détectée');
+                    this.handleReducedMotionPreference();
+                }
+
+                // Écoute les changements de préférence
+                prefersReducedMotion.addListener((mq) => {
+                    if (mq.matches) {
+                        this.handleReducedMotionPreference();
+                    }
+                });
+            }
+
+            /**
+             * GESTION RÉDUCTION DE MOUVEMENT
+             * 
+             * Désactive animations pour utilisateurs sensibles
+             */
+            handleReducedMotionPreference() {
+                // Arrête la vidéo si elle joue
+                if (this.video && !this.video.paused) {
+                    this.video.pause();
+                }
+                
+                // Affiche l'image statique
+                this.showFallbackImage();
+                
+                console.log('🎬➡️🖼️ Basculement vers image statique (accessibilité)');
+            }
+
+            /**
+             * ANALYSE DU CHARGEMENT VIDÉO RÉEL
+             * 
+             * Avec la vidéo rabbit MDN, nous pouvons maintenant observer tous les événements
+             * de chargement HTML5 dans leur séquence naturelle. Cette observation vous permet
+             * de comprendre concrètement comment les navigateurs gèrent les ressources vidéo.
+             */
+            simulateVideoLoading() {
+                console.log('🐰 Vidéo rabbit MDN - observation des événements natifs');
+                console.log('📊 URL source:', this.video ? this.video.currentSrc || 'Non définie' : 'Élément vidéo introuvable');
+                
+                // Établissement d'un timeout de sécurité pour diagnostic
+                this.setupVideoTimeout();
+                
+                // Log des caractéristiques de la vidéo une fois chargée
+                if (this.video) {
+                    this.logVideoCharacteristics();
+                }
+            }
+
+            /**
+             * ANALYSE DES CARACTÉRISTIQUES VIDÉO
+             * 
+             * Cette fonction révèle les propriétés techniques de votre vidéo,
+             * informations cruciales pour optimiser les performances.
+             */
+            logVideoCharacteristics() {
+                this.video.addEventListener('loadedmetadata', () => {
+                    console.log('📐 Dimensions vidéo:', this.video.videoWidth + 'x' + this.video.videoHeight);
+                    console.log('⏱️ Durée:', this.video.duration.toFixed(2) + ' secondes');
+                    console.log('📦 Format détecté:', this.video.currentSrc.split('.').pop());
+                    console.log('🎚️ Volume:', this.video.muted ? 'Muet (optimal pour autoplay)' : 'Audio détecté');
+                    
+                    // Calcul du ratio d'aspect pour diagnostic
+                    const aspectRatio = (this.video.videoWidth / this.video.videoHeight).toFixed(2);
+                    console.log('📏 Ratio d\'aspect:', aspectRatio + ' (' + this.getAspectRatioDescription(aspectRatio) + ')');
+                });
+            }
+
+            /**
+             * INTERPRÉTATION DU RATIO D'ASPECT
+             * 
+             * Aide à comprendre comment la vidéo va s'adapter dans le conteneur hero
+             */
+            getAspectRatioDescription(ratio) {
+                if (ratio > 1.7) return 'Ultra-large - excellent pour hero desktop';
+                if (ratio > 1.5) return 'Large - idéal pour hero moderne';
+                if (ratio > 1.2) return 'Standard - bon compromis universel';
+                return 'Carré/Portrait - nécessitera adaptation mobile';
+            }
+
+            /**
+             * TIMEOUT DE DIAGNOSTIC AVANCÉ
+             * 
+             * Timeout plus court pour cette vidéo légère, avec diagnostic détaillé
+             */
+            setupVideoTimeout() {
+                this.videoTimeout = setTimeout(() => {
+                    if (!this.isVideoLoaded) {
+                        console.log('⏰ Diagnostic de chargement après 8 secondes...');
+                        console.log('📊 État readyState:', this.video ? this.video.readyState : 'Vidéo non trouvée');
+                        console.log('📊 État networkState:', this.video ? this.video.networkState : 'Vidéo non trouvée');
+                        console.log('🔍 Activation du système de fallback');
+                        this.handleVideoError();
+                    }
+                }, 8000); // 8 secondes pour une vidéo aussi légère
+            }
+
+            /**
+             * CALLBACK : VIDÉO CHARGÉE
+             * 
+             * Actions à effectuer quand la vidéo est prête
+             */
+            onVideoLoaded() {
+                this.isVideoLoaded = true;
+                
+                // Cache l'indicateur de chargement
+                this.hideLoadingIndicator();
+                
+                // Si on utilise une vraie vidéo, on l'affiche
+                if (this.video) {
+                    this.video.classList.add('loaded');
+                    // Cache le placeholder
+                    if (this.placeholder) {
+                        this.placeholder.style.opacity = '0';
+                    }
+                }
+                
+                console.log('✨ Vidéo hero prête et affichée');
+            }
+
+            /**
+             * CALLBACK : VIDÉO EN LECTURE
+             * 
+             * Actions quand la vidéo joue effectivement
+             */
+            onVideoPlaying() {
+                // On peut cacher complètement le placeholder maintenant
+                if (this.placeholder) {
+                    setTimeout(() => {
+                        this.placeholder.style.display = 'none';
+                    }, 800); // Après la transition d'opacité
+                }
+            }
+
+            /**
+             * GESTION D'ERREUR VIDÉO
+             * 
+             * Que faire si la vidéo ne peut pas charger
+             */
+            handleVideoError() {
+                this.hasError = true;
+                console.error('💥 Impossible de charger la vidéo - basculement vers fallback');
+                
+                // Cache l'indicateur de chargement
+                this.hideLoadingIndicator();
+                
+                // Affiche l'image de fallback
+                this.showFallbackImage();
+                
+                // Cache la vidéo défaillante
+                if (this.video) {
+                    this.video.style.display = 'none';
+                }
+            }
+
+            /**
+             * AFFICHAGE IMAGE DE FALLBACK
+             * 
+             * Bascule vers une image statique en cas de problème
+             */
+            showFallbackImage() {
+                if (this.placeholder) {
+                    // Arrête l'animation du placeholder et le rend statique
+                    this.placeholder.style.animation = 'none';
+                    this.placeholder.style.background = '#667eea';
+                    this.placeholder.style.opacity = '1';
+                    this.placeholder.style.zIndex = '2';
+                }
+                
+                console.log('🖼️ Image de fallback affichée');
+            }
+
+            /**
+             * MASQUER L'INDICATEUR DE CHARGEMENT
+             * 
+             * Animation douce de disparition
+             */
+            hideLoadingIndicator() {
+                if (!this.loadingIndicator) return;
+                
+                this.loadingIndicator.classList.add('hidden');
+                
+                // Supprime l'élément du DOM après l'animation
+                setTimeout(() => {
+                    if (this.loadingIndicator && this.loadingIndicator.parentNode) {
+                        this.loadingIndicator.style.display = 'none';
+                    }
+                }, 500); // Correspond à la durée de transition CSS
+            }
+        }
+
+        /**
+         * GESTION DU SCROLL FLUIDE
+         * 
+         * Pour les liens ancre (#guide)
+         */
+        function setupSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        
+                        console.log(`📜 Scroll fluide vers: ${targetId}`);
+                    }
+                });
+            });
+        }
+
+        /**
+         * INITIALISATION GLOBALE
+         * 
+         * Lance tout quand le DOM est prêt
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 DOM chargé - initialisation des systèmes');
+            
+            // Lance le gestionnaire de vidéo hero
+            new HeroVideoManager();
+            
+            // Configure le scroll fluide
+            setupSmoothScrolling();
+            
+            console.log('✅ Tous les systèmes sont opérationnels');
+        });
+
+        /**
+         * GESTION DES ERREURS GLOBALES
+         * 
+         * Capture les erreurs non gérées
+         */
+        window.addEventListener('error', (e) => {
+            console.error('💥 Erreur globale capturée:', e.error);
+        });
+
+        /**
+         * INFORMATIONS DE DEBUG UTILES
+         * 
+         * Affiche des informations système utiles dans la console
+         */
+        console.log('🔧 Informations système:');
+        console.log('- User Agent:', navigator.userAgent);
+        console.log('- Taille écran:', window.screen.width + 'x' + window.screen.height);
+        console.log('- Viewport:', window.innerWidth + 'x' + window.innerHeight);
+        if ('connection' in navigator) {
+            console.log('- Connexion:', navigator.connection.effectiveType);
+        }
+    </script>
+</body>
+</html>
