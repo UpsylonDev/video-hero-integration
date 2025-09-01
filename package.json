@@ -1,0 +1,20 @@
+{
+  "name": "video-hero-integration",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.15.0",
+  "dependencies": {
+    "vue": "^3.5.20"
+  },
+  "devDependencies": {
+    "@vue/tsconfig": "^0.5.1",
+    "typescript": "~5.4.0"
+  }
+}
